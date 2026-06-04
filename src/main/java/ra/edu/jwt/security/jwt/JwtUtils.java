@@ -60,6 +60,15 @@ public class JwtUtils{
                 .signWith(getKey(), SignatureAlgorithm.HS256) // nghiên cứu
                 .compact();
     }
+    public String generateToken(String username, long expiredTime){
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date()) // thời gian bắt đầu token hoạt động
+                .setExpiration(new Date(new Date().getTime() + expiredTime))
+//                .signWith(SignatureAlgorithm.HS256, jwtSecret)
+                .signWith(getKey(), SignatureAlgorithm.HS256) // nghiên cứu
+                .compact();
+    }
     private Key getKey(){
         SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
         System.out.println("key : "+ Arrays.toString(key.getEncoded()));

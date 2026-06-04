@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import ra.edu.jwt.dto.request.LoginRequest;
 import ra.edu.jwt.dto.request.RegisterRequest;
 import ra.edu.jwt.dto.response.JwtResponse;
+import ra.edu.jwt.entity.RefreshToken;
 import ra.edu.jwt.entity.User;
+import ra.edu.jwt.repository.RefreshTokenRepository;
 import ra.edu.jwt.repository.UserRepository;
 import ra.edu.jwt.security.jwt.JwtUtils;
 
@@ -22,6 +24,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtils jwtUtils;
     @Value("${jwt.expired}")
     private long expired;
@@ -49,10 +52,20 @@ public class AuthService {
                 )
         );
         if (authentication.isAuthenticated()) {
+
+
             // ở đây bạn có thể sinh JWT token thay vì trả plain text
-            String accessToken = jwtUtils.generateAccessToken(request.getUsername());
+            String accessToken = jwtUtils.generateToken(request.getUsername(),5*60*1000);
+            String refreshToken = jwtUtils.generateToken(request.getUsername(),7*24*60*60*1000);
+            // Lưu vào DB
+            RefreshToken refresh = new RefreshToken(null, refreshToken,
+                    userRepository.findByUsername(request.getUsername()).get(),
+                    new Date(new Date().getTime()+7*24*60*60*1000),false);
+            refreshTokenRepository.save(refresh);
+
             return JwtResponse.builder()
                     .accessToken(accessToken)
+                    .refreshToken(refreshToken)
                     .expiredAt(new Date(new Date().getTime()+expired))
                     .build();
         } else {

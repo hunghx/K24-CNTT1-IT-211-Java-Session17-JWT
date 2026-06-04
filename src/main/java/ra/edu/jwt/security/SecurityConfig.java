@@ -26,7 +26,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable) // cors va csrf
                 // hạn chế của phân quyền theo đuờng dẫn
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll() // cho phép login/register
@@ -39,6 +39,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

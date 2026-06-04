@@ -10,6 +10,7 @@ import java.util.Date;
 @Builder
 public class JwtResponse {
     private String accessToken;
+    private String refreshToken;
     private final String type = "Bearer Token";
     private Date expiredAt;
 }
